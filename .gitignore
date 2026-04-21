@@ -208,3 +208,11 @@ __marimo__/
 
 .DS_Store
 Thumbs.db
+docs/tex/*.aux
+docs/tex/*.bbl
+docs/tex/*.blg
+docs/tex/*.log
+docs/tex/*.out
+docs/tex/*.toc
+docs/tex/*.synctex.gz
+
