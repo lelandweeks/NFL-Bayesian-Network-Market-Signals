@@ -3,6 +3,8 @@
 \usepackage{times}
 \usepackage{hyperref}
 \usepackage{enumitem}
+\usepackage{graphicx}
+
 
 \title{\textbf{Bayesian Network Modeling of NFL Game Stats and Market Signals for Value Identification}}
 
@@ -12,6 +14,9 @@
   \and
   Johnny Belichev\\
   \texttt{jb4458@drexel.edu}
+  \and
+  Ishant Somal\\
+  \texttt{is488@drexel.edu}
 }
 
 \date{May 3, 2026}
@@ -23,15 +28,70 @@
 
 \section*{Problem Statement and Motivation}
 
+The problem we are trying to solve is: Does partially overlapping information sources encode independent predictive information? For this problem, the domain and data we've chosen is game stats and market signals for NFL games. Our motivation is to uncover whether line movement (market signals) contains information beyond game stats that reveal whether market pricing is efficient or not. Full efficiency would mean that there are no market signals or game stats that encode information not encoded by both together. 
+
+If additional information exists in game stats that is not encoded within market signals, then there is information that could be exploited to further move the line towards efficiency. 
+
+Our dataset spans 3,990 games over 15 seasons with 6 market data points per game including opening and closing spreads. The two data sources are joined by season and matchup (home and away teams). Our game stats data is from nflverse[1] and our market data is from SportsBookReviewsOnline.com[2].
 
 
+\begin{table}[ht]
+	\centering
+	\small
+	\caption{Sample rows from \texttt{nfl\_game\_stats\_raw} (nflverse)}
+	\begin{tabular}{llllrrrrr}
+		\hline
+		\textbf{Season} & \textbf{Wk} & \textbf{Home} & \textbf{Away} & \textbf{H Score} & \textbf{A Score} & \textbf{H EPA/play} & \textbf{H TOs} & \textbf{A TOs} \\
+		\hline
+		2007 & 1 & IND & NO  & 41 & 10 &  0.055 & 1 & 3 \\
+		2007 & 1 & BUF & DEN & 14 & 15 & -0.074 & 1 & 1 \\
+		2007 & 1 & CLE & PIT &  7 & 34 & -0.331 & 5 & 1 \\
+		2007 & 1 & GB  & PHI & 16 & 13 & -0.082 & 4 & 1 \\
+		2007 & 1 & HOU & KC  & 20 &  3 &  0.011 & 3 & 3 \\
+		\hline
+	\end{tabular}
+	\label{tab:nflverse}
+\end{table}
+
+
+\begin{table}[ht]
+	\centering
+	\small
+	\caption{Sample rows from \texttt{sbr\_nfl\_odds\_raw} (SBR)}
+	\begin{tabular}{llllrrrrrr}
+		\hline
+		\textbf{Season} & \textbf{Home} & \textbf{Visitor} & \textbf{Open Sprd} & \textbf{Close Sprd} & \textbf{Open Tot} & \textbf{Close Tot} & \textbf{ML Home} & \textbf{ML Away} \\
+		\hline
+		2007-08 & Indianapolis   & NewOrleans  &  5.5 &  5.5 & 50.5 & 52.5 & -240 &  200 \\
+		2007-08 & HoustonTexans  & KansasCity  & 38.5 &  3.0 &  0.0 & 37.5 & -200 &  170 \\
+		2007-08 & Buffalo        & Denver      &  3.0 &  3.0 & 37.0 & 38.5 &  150 & -170 \\
+		2007-08 & Cleveland      & Pittsburgh  &  4.5 &  5.0 & 37.5 & 36.0 &  195 & -235 \\
+		2007-08 & Jacksonville   & Tennessee   &  6.5 &  7.5 & 37.5 & 39.5 & -350 &  290 \\
+		\hline
+	\end{tabular}
+	\label{tab:sbr}
+\end{table}
 
 \section*{Approach}
 
+We plan to implement a BN Bayesian Network to test our hypothesis. The DAG structure Figure~\ref{fig:dag} is a representation of our assumptions from the domain - historical stats drive the opening line, and the market reacts. Our BN will formally test conditional independence, specifically the causal relationship between line movement and game outcome. 
 
+Our baseline will be NB Naive Bayes with assumption that all features are independent. We will use Hill Climbing as the main algorithm to encode our BN model, and we will use Peter-Clark (PC) as a validation check of the dependencies of our current DAG structure. We will test stats and market data in isolation and in combination. Comparing these three tests will tell us whether stats or market data is adding any signal or if they are redundant. If our BN can't beat Naive Bayes, then it means that the conditional dependencies  we're modeling don't provide predictive value, which will formally confirm that closing line is efficient. 
+
+Our dataset is dense with signal. First, the EPA per play is the most dense stat in football because it accounts for down, distance, and field position. Other stats, such as yards, turnovers, and scoring efficiency are highly correlated with EPA per play. We will also be able to derive a rolling average of Against-The-Spread (ATS) to substitute the actual ATS - because including the actual ATS would result in data leakage. Derivation of a rolling average ATS will be computed from previous games up to but not including the current game.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.5\linewidth]{approach_dag.png}
+	\caption{Bayesian network DAG structure. Dashed arrows represent 
+	hypothesized direct effects on game outcome — most critically, 
+	whether line movement predicts outcome independent of game fundamentals.}	
+	\label{fig:dag}
+\end{figure}
 
 
 \section*{Related Work and Novelty}
+
 
 
 
@@ -47,6 +107,8 @@
 
 
 \bibliographystyle{plain}
+[1] https://nflverse.nflverse.com
+[2] https://sportsbookreviewsonline.com/scoresoddsarchives/nfl/nfloddsarchives.htm
 \bibliography{references}
 
 
