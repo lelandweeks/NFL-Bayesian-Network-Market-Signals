@@ -92,7 +92,9 @@ Our dataset is dense with signal. First, the EPA per play is the most dense stat
 
 \section*{Related Work and Novelty}
 
+Prior work has shown that probabilistic graphical models can be useful for sports prediction. Constantinou, Fenton, and Neil developed Bayesian network models for association football forecasting, showing that BNs can represent uncertain relationships between team strength, form, subjective factors, and match outcomes [3], [4]. However, their models focus mainly on game-related variables rather than modeling betting market movement as its own source of information. Other work has combined historical performance data with bookmaker odds. Egidi, Pauli, and Torelli use a hierarchical Bayesian model that blends historical team data with betting odds [5], while Hubáček, Šourek, and Železný study machine-learning systems that compare model predictions against bookmaker odds [6]. These studies show that market information can be useful, but they do not model the conditional dependence structure between game statistics, opening lines, line movement, and outcomes using a Bayesian network.
 
+Separate research has studied betting market efficiency and line movement directly. Simon analyzes real-time betting line movement and finds that betting markets are mostly reliable but not always efficient [7]. Moskowitz studies sports betting as a market for detecting mispricing and momentum [8], while Szalkowski and Nelson examine NFL opening and closing lines as predictors of game outcomes [9]. Our project differs from these works by combining both perspectives: we use a Bayesian network to model game statistics and line movement together. The goal is not only to predict outcomes, but to test whether line movement contains additional predictive information after conditioning on game fundamentals. This makes the project a study of information overlap, conditional dependence, and market efficiency in NFL game pricing.
 
 
 
@@ -106,10 +108,58 @@ Our dataset is dense with signal. First, the EPA per play is the most dense stat
 
 
 
-\bibliographystyle{plain}
-[1] https://nflverse.nflverse.com
-[2] https://sportsbookreviewsonline.com/scoresoddsarchives/nfl/nfloddsarchives.htm
-\bibliography{references}
+\begin{thebibliography}{9}
+
+\bibitem{nflverse}
+nflverse. 
+\textit{nflverse: NFL data and R/Python packages for football analytics. https://nflverse.nflverse.com}.
+
+\bibitem{sbr}
+SportsBookReviewsOnline. 
+\textit{NFL Odds Archives / Scores and Odds Archives. https://sportsbookreviewsonline.com/scoresoddsarchives/nfl/nfloddsarchives.htm}.
+
+\bibitem{constantinou2012}
+A. C. Constantinou, N. E. Fenton, and M. Neil, 
+``pi-football: A Bayesian network model for forecasting Association Football match outcomes,'' 
+\textit{Knowledge-Based Systems}, vol. 36, 2012. 
+doi: 10.1016/j.knosys.2012.07.008.
+
+\bibitem{constantinou2013}
+A. C. Constantinou, N. E. Fenton, and M. Neil, 
+``Profiting from an inefficient Association Football gambling market: Prediction, risk and uncertainty using Bayesian networks,'' 
+\textit{Knowledge-Based Systems}, vol. 50, 2013. 
+doi: 10.1016/j.knosys.2013.05.008.
+
+\bibitem{egidi2018}
+L. Egidi, F. Pauli, and N. Torelli, 
+``Combining historical data and bookmakers' odds in modelling football scores,'' 
+\textit{Statistical Modelling}, vol. 18, no. 5--6, 2018. 
+doi: 10.1177/1471082X18798414.
+
+\bibitem{hubacek2019}
+O. Hubáček, G. Šourek, and F. Železný, 
+``Exploiting sports-betting market using machine learning,'' 
+\textit{International Journal of Forecasting}, vol. 35, no. 2, 2019. 
+doi: 10.1016/j.ijforecast.2019.01.001.
+
+\bibitem{simon2024}
+J. Simon, 
+``Inefficient forecasts at the sportsbook: An analysis of real-time betting line movement,'' 
+\textit{Management Science}, vol. 70, no. 12, 2024. 
+doi: 10.1287/mnsc.2022.00456.
+
+\bibitem{moskowitz2021}
+T. J. Moskowitz, 
+``Asset Pricing and Sports Betting,'' 
+\textit{The Journal of Finance}, vol. 76, no. 6, 2021. 
+doi: 10.1111/jofi.13082.
+
+\bibitem{szalkowski2012}
+G. Szalkowski and M. L. Nelson, 
+``The Performance of Betting Lines for Predicting the Outcome of NFL Games,'' 
+\textit{arXiv preprint arXiv:1211.4000}, 2012.
+
+\end{thebibliography}
 
 
 \end{document}
