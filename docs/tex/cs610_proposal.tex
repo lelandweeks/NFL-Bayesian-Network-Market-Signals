@@ -4,6 +4,7 @@
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{graphicx}
+\usepackage{amssymb}
 
 
 \title{\textbf{Bayesian Network Modeling of NFL Game Stats and Market Signals for Value Identification}}
@@ -26,13 +27,13 @@
 \maketitle
 
 
-\section*{Problem Statement and Motivation}
+\section{Problem Statement and Motivation}
 
-The problem we are trying to solve is: Does partially overlapping information sources encode independent predictive information? For this problem, the domain and data we've chosen is game stats and market signals for NFL games. Our motivation is to uncover whether line movement (market signals) contains information beyond game stats that reveal whether market pricing is efficient or not. Full efficiency would mean that there are no market signals or game stats that encode information not encoded by both together. 
+The problem we are trying to solve is: Does partially overlapping information sources encode independent predictive information? For this problem, the domain and data we've chosen is game stats and market signals for NFL games.
 
-If additional information exists in game stats that is not encoded within market signals, then there is information that could be exploited to further move the line towards efficiency. 
+Our motivation is to uncover whether line movement (market signals) contains information beyond game stats that reveal whether market pricing is efficient or not. Full efficiency would mean that there are no market signals or game stats that encode information not encoded by both together. If additional information exists in game stats that is not encoded within market signals, then there is information that could be exploited to further move the line towards efficiency. 
 
-Our dataset spans 3,990 games over 15 seasons with 6 market data points per game including opening and closing spreads. The two data sources are joined by season and matchup (home and away teams). Our game stats data is from nflverse[1] and our market data is from SportsBookReviewsOnline.com[2].
+Our dataset spans 3,990 games over 15 seasons with 6 market data points per game including opening and closing spreads. The two data sources are joined by season and matchup (home and away teams). Our game stats data is from nflverse\cite{nflverse} and our market data is from SportsBookReviewsOnline.com\cite{sbr}.
 
 
 \begin{table}[ht]
@@ -72,17 +73,17 @@ Our dataset spans 3,990 games over 15 seasons with 6 market data points per game
 	\label{tab:sbr}
 \end{table}
 
-\section*{Approach}
+\section{Approach}
 
-We plan to implement a BN Bayesian Network to test our hypothesis. The DAG structure Figure~\ref{fig:dag} is a representation of our assumptions from the domain - historical stats drive the opening line, and the market reacts. Our BN will formally test conditional independence, specifically the causal relationship between line movement and game outcome. 
+We plan to implement a BN Bayesian Network to test our hypothesis. The DAG structure shown in Figure~\ref{fig:dag} is a representation of our assumptions from the domain - historical stats drive the opening line, and the market reacts. Our BN will formally test conditional independence, specifically the causal relationship between line movement and game outcome. 
 
-Our baseline will be NB Naive Bayes with assumption that all features are independent. We will use Hill Climbing as the main algorithm to encode our BN model, and we will use Peter-Clark (PC) as a validation check of the dependencies of our current DAG structure. We will test stats and market data in isolation and in combination. Comparing these three tests will tell us whether stats or market data is adding any signal or if they are redundant. If our BN can't beat Naive Bayes, then it means that the conditional dependencies  we're modeling don't provide predictive value, which will formally confirm that closing line is efficient. 
+Our baseline will be NB Naive Bayes with assumption that all features are independent. We will use Hill Climbing as the main algorithm to encode our BN model, and we will use Peter-Clark (PC) as a validation check of the dependencies of our current DAG structure. We will test stats and market data in isolation and in combination. Comparing these three tests will tell us whether stats or market data is adding any signal or if they are redundant. If our BN can't beat Naive Bayes, then it means that the conditional dependencies  we're modeling don't provide predictive value, which will formally confirm that closing lines are efficient. 
 
 Our dataset is dense with signal. First, the EPA per play is the most dense stat in football because it accounts for down, distance, and field position. Other stats, such as yards, turnovers, and scoring efficiency are highly correlated with EPA per play. We will also be able to derive a rolling average of Against-The-Spread (ATS) to substitute the actual ATS - because including the actual ATS would result in data leakage. Derivation of a rolling average ATS will be computed from previous games up to but not including the current game.
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.5\linewidth]{approach_dag.png}
+	\includegraphics[width=0.7\linewidth]{approach_dag.png}
 	\caption{Bayesian network DAG structure. Dashed arrows represent 
 	hypothesized direct effects on game outcome — most critically, 
 	whether line movement predicts outcome independent of game fundamentals.}	
@@ -90,7 +91,7 @@ Our dataset is dense with signal. First, the EPA per play is the most dense stat
 \end{figure}
 
 
-\section*{Related Work and Novelty}
+\section{Related Work and Novelty}
 
 Prior work has shown that probabilistic graphical models can be useful for sports prediction. Constantinou, Fenton, and Neil developed Bayesian network models for association football forecasting, showing that BNs can represent uncertain relationships between team strength, form, subjective factors, and match outcomes [3], [4]. However, their models focus mainly on game-related variables rather than modeling betting market movement as its own source of information. Other work has combined historical performance data with bookmaker odds. Egidi, Pauli, and Torelli use a hierarchical Bayesian model that blends historical team data with betting odds [5], while Hubáček, Šourek, and Železný study machine-learning systems that compare model predictions against bookmaker odds [6]. These studies show that market information can be useful, but they do not model the conditional dependence structure between game statistics, opening lines, line movement, and outcomes using a Bayesian network.
 
@@ -98,14 +99,36 @@ Separate research has studied betting market efficiency and line movement direct
 
 
 
-\section*{Evaluation Approach}
+\section{Evaluation Approach}
 
 
 
 
-\section*{Milestones}
+\section{Milestones}
 
-
+\begin{table}[h]
+	\centering
+	\small
+	\caption{Project Milestones}
+\begin{tabular}{l p{8cm} l}
+		\hline
+		\textbf{Due} & \textbf{Milestone} & \textbf{Owner} \\
+		\hline
+		Apr 26 & Data pipeline complete (acquisition + preprocessing)      & Done \\
+		May 3  & Project Proposal submitted                          & Done \\
+		May 7  & Proposal Presentation                               & All \\
+		May 14 & DAG validation via PC algorithm                     & TBD \\
+		May 17 & Naive Bayes baseline implemented and evaluated      & TBD \\
+		May 21 & BN with Hill Climbing implemented                   & TBD \\
+		May 24 & Ablation runs (stats only / market only / combined) & TBD \\
+		May 26 & Results interpreted and written up                  & TBD \\
+		May 28 & Paper draft complete                                & All \\
+		May 31 & Final revisions and artifact submitted              & All \\
+		Jun 4  & Final Presentation                                  & All \\
+		\hline
+	\end{tabular}
+	\label{tab:milestones}
+\end{table}
 
 
 \begin{thebibliography}{9}
