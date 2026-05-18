@@ -30,8 +30,8 @@ CATEGORICAL_FEATURES = ["season", "week", "roof", "surface",
 # get continuous features
 def get_cont(df):
 
-    print(df.head())
-    print(df.columns)
+    #print(df.head())
+    #print(df.columns)
 
     # copy the data instead of modifying in place
     df = df.copy()
@@ -45,15 +45,19 @@ def get_cont(df):
     df.drop(columns=["home_score", "away_score"], inplace=True)
 
     # use these game stat features directly
-    df["temp"] = df["temp"]
-    df["wind"] = df["wind"]
+    # but replace the NaN values
+    df["temp"] = df["temp"].fillna(72)
+    df["wind"] = df["wind"].fillna(0)
 
     # derive game stat features
+    # delete the rows with missing values
+    # then drop the columns that are no longer needed
     df["epa_diff"] = df["home_epa_per_play"] - df["away_epa_per_play"]
     df["yards_diff"] = df["home_total_yards"] - df["away_total_yards"]
     df["turnover_diff"] = df["home_turnovers"] - df["away_turnovers"]
     df["td_diff"] = df["home_touchdowns"] - df["away_touchdowns"]
     df["completion_diff"] = df["home_completion_pct"] - df["away_completion_pct"]
+    df = df.dropna(subset=["epa_diff", "yards_diff", "turnover_diff", "td_diff", "completion_diff"])
     df.drop(columns=["home_epa_per_play", "away_epa_per_play", 
                      "home_total_yards", "away_total_yards",
                      "home_turnovers", "away_turnovers", 
@@ -81,7 +85,7 @@ def get_cont(df):
 
     # drop non-feature columns that are not needed for the model
     df = df.drop(columns=NON_FEATURES)
-    #df = df.drop(columns=CATEGORICAL_FEATURES)
+    df = df.drop(columns=["season", "week", "home_team", "away_team"])
 
     return df
 
@@ -114,7 +118,7 @@ def get_cat(df):
 
     df["home_rolling_ats"] = None # TODO
  
-    df.drop(columns=["temp", "wind", "home_team", "away_team"], inplace=True)
+    #df.drop(columns=["home_team", "away_team"], inplace=True)
 
     return df 
 
