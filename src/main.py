@@ -13,7 +13,8 @@ from features import get_cont, get_cat
 # get the data
 df = get_data()
 
-# get the continuous and categoriacal features
+# get the continuous and then
+# convert to categorical features
 df_cont = get_cont(df)
-df_cat = get_cat(df)
+df_cat = get_cat(df_cont)
 
