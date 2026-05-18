@@ -53,7 +53,7 @@ TEAM_NAME_MAP = {
     "Washington":   "WAS",
 }
 
-def data_loader():
+def get_data():
 
 
     # ==========
