@@ -41,7 +41,15 @@ def get_cont(df):
 
     # target ATS: cover, push, loss
     margin = df["home_score"] - df["away_score"]
-    df[TARGET] = margin #TODO
+    ats_result = []
+    for i in range(len(df)):
+        if margin.iloc[i] > df["close_spread"].iloc[i]:
+            ats_result.append("cover")
+        elif margin.iloc[i] == df["close_spread"].iloc[i]:
+            ats_result.append("push")
+        else:
+            ats_result.append("loss")
+    df[TARGET] = ats_result
     df.drop(columns=["home_score", "away_score"], inplace=True)
 
     # use these game stat features directly
@@ -52,6 +60,7 @@ def get_cont(df):
     # derive game stat features
     # delete the rows with missing values
     # then drop the columns that are no longer needed
+    # epa = expected points added, a measure of how good each play was for the offense
     df["epa_diff"] = df["home_epa_per_play"] - df["away_epa_per_play"]
     df["yards_diff"] = df["home_total_yards"] - df["away_total_yards"]
     df["turnover_diff"] = df["home_turnovers"] - df["away_turnovers"]
@@ -72,9 +81,31 @@ def get_cont(df):
     df["spread_move"] = df["close_spread"] - df["open_spread"] 
     df["total_move"] = df["close_total"]  - df["open_total"]
 
-    # TODO
-    df["p_ml_home"] = None # df["ml_home"] / (df["ml_home"] + df["ml_visitor"])
-    df["p_ml_visitor"] = None # df["ml_visitor"] / (df["ml_home"] + df["ml_visitor"])
+
+    #df["p_ml_home"] = None # df["ml_home"] / (df["ml_home"] + df["ml_visitor"])
+    #df["p_ml_visitor"] = None # df["ml_visitor"] / (df["ml_home"] + df["ml_visitor"])
+
+    # convert moneyline odds to win probability i.e. vig removed
+    # needed for pc algorithm to learn dependencies
+    raw_home = []
+    for odds in df["ml_home"]:
+        if odds < 0:
+            raw_home.append(-odds / (-odds + 100))
+        else:
+            raw_home.append(100 / (odds + 100))
+
+    raw_away = []
+    for odds in df["ml_visitor"]:
+        if odds < 0:
+            raw_away.append(-odds / (-odds + 100))
+        else:
+            raw_away.append(100 / (odds + 100))
+
+    home_win_prob = []
+    for i in range(len(df)):
+        total = raw_home[i] + raw_away[i]
+        home_win_prob.append(raw_home[i] / total)
+    df["home_win_prob"] = home_win_prob
 
     df.drop(columns=["open_spread", "open_total",
                      "ml_home", "ml_visitor"], inplace=True)
@@ -113,8 +144,7 @@ def get_cat(df):
     df["close_total"] = df["close_total"].apply(lambda x: "over" if x > 45 else "under")
     df["spread_move"] = df["spread_move"].apply(lambda x: "towards_home" if x < 0 else "towards_visitor" if x > 0 else "no_move")
     df["total_move"] = df["total_move"].apply(lambda x: "towards_over" if x > 0 else "towards_under" if x < 0 else "no_move")
-    df["p_ml_home"] = None #TODO
-    df["p_ml_visitor"] = None #TODO
+    df["home_win_prob"] = df["home_win_prob"].apply(lambda x: "low" if x < 0.4 else "high" if x > 0.6 else "mid")
 
     df["home_rolling_ats"] = None # TODO
  

@@ -45,8 +45,7 @@ if args.model in ("nb", "all"):
     # i.e. if we just predicted "loss" for every game, we would be correct 58% of the time
 
     print("Running Naive Bayes baseline...")
-    X = df_cont.drop(columns=["ats_result", "roof", "surface",
-                              "p_ml_home", "p_ml_visitor", "home_rolling_ats"])
+    X = df_cont.drop(columns=["ats_result", "roof", "surface", "home_rolling_ats"])
     #print(X.isnull().sum())
     #print(X.shape)
     y = df_cont["ats_result"]
@@ -62,12 +61,12 @@ if args.model in ("hc", "all"):
 
     print("Running Hill Climbing for Bayes Network...")
     X = df_cat.drop(columns=["ats_result", "roof", "surface",
-                            "p_ml_home", "p_ml_visitor", "home_rolling_ats"])
+                            "home_rolling_ats"])
     y = df_cat["ats_result"]
     #print(df_cat.dtypes)
     #print(df_cat.isnull().sum())
 
-    df_hc = df_cat.drop(columns=["p_ml_home", "p_ml_visitor", "home_rolling_ats"])
+    df_hc = df_cat.drop(columns=["home_rolling_ats"])
     model = run_hc(df_hc)
     #print("Hill Climbing edges:", model.edges())
 
@@ -75,7 +74,7 @@ if args.model in ("hc", "all"):
 
 if args.model in ("pc", "all"):
     print("Running PC Algorithm...")
-    df_pc = df_cat.drop(columns=["p_ml_home", "p_ml_visitor", "home_rolling_ats"])
+    df_pc = df_cat.drop(columns=["home_rolling_ats"])
     model_pc = run_pc(df_pc)
     print("PC Algorithm edges:", model_pc.edges())
 
