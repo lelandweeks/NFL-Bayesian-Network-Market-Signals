@@ -45,10 +45,13 @@ if args.model in ("nb", "all"):
     # i.e. if we just predicted "loss" for every game, we would be correct 58% of the time
 
     print("Running Naive Bayes baseline...")
-    X = df_cont.drop(columns=["ats_result", "roof", "surface", "home_rolling_ats"])
+    X = df_cont.drop(columns=["ats_result", "roof", "surface"])
+    X = X.dropna(subset=["home_rolling_ats"])
+
     #print(X.isnull().sum())
     #print(X.shape)
-    y = df_cont["ats_result"]
+    #y = df_cont["ats_result"]
+    y = df_cont.loc[X.index, "ats_result"]
     print(y.value_counts(normalize=True))
     model, preds, probs, y_test = run_nb(X, y)
     metrics = eval(y_test, preds, probs)

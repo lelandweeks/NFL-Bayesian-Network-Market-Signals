@@ -110,9 +110,30 @@ def get_cont(df):
     df.drop(columns=["open_spread", "open_total",
                      "ml_home", "ml_visitor"], inplace=True)
 
+
+
     # make sure to not introduce data leakage by using future games
-    # TODO
-    df["home_rolling_ats"] = None
+    df["cover_flag"] = (df[TARGET] == "cover").astype(int)
+
+    rolling_ats = []
+    for i, row in df.iterrows():
+        team = row["home_team"]
+        week = row["week"]
+        season = row["season"]
+
+        prior_games = df[
+            (df["home_team"] == team) &
+            ((df["season"] < season) |
+             ((df["season"] == season) & (df["week"] < week)))
+        ]
+
+        if len(prior_games) == 0:
+            rolling_ats.append(None)
+        else:
+            rolling_ats.append(prior_games["cover_flag"].mean())
+
+    df["home_rolling_ats"] = rolling_ats
+    df = df.drop(columns=["cover_flag"])
 
     # drop non-feature columns that are not needed for the model
     df = df.drop(columns=NON_FEATURES)
@@ -146,7 +167,7 @@ def get_cat(df):
     df["total_move"] = df["total_move"].apply(lambda x: "towards_over" if x > 0 else "towards_under" if x < 0 else "no_move")
     df["home_win_prob"] = df["home_win_prob"].apply(lambda x: "low" if x < 0.4 else "high" if x > 0.6 else "mid")
 
-    df["home_rolling_ats"] = None # TODO
+    df["home_rolling_ats"] = df["home_rolling_ats"].apply(lambda x: "below" if x is not None and x < 0.5 else ("above" if x is not None else None))
  
     #df.drop(columns=["home_team", "away_team"], inplace=True)
 
