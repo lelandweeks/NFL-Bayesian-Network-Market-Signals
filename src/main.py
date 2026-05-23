@@ -17,11 +17,19 @@ from features import get_cont, get_cat
 from models.naive_bayes import run_nb
 from models.hill_climbing import run_hc
 from models.pc_algorithm import run_pc
-from evaluate import eval
+from evaluate import get_eval, print_report
 
+
+OUTPUT_DIR = 'output/'
+
+# save the metrics to disk
+def save_metrics(metrics, model_name):
+    path = OUTPUT_DIR + model_name + '_metrics.txt'
+    with open(path, 'w') as f:
+        f.write(f"{model_name}\n{metrics}\n")
+    print('Metrics saved: ' + path)
 
 # save the dag diagram to disk
-OUTPUT_DIR = 'output/'
 def save_dag(model, model_name):
     path = OUTPUT_DIR + model_name + '_dag.txt'
     edges = sorted(list(model.edges()))
@@ -42,6 +50,7 @@ print("Processing features...")
 df_cont = get_cont(df)
 print("Converting to categorical features...")
 df_cat = get_cat(df_cont)
+print('\n')
 
 # realized that data column "line_quality" was not being respected 
 #print(df_cat["close_spread"].value_counts())
@@ -66,10 +75,13 @@ if args.model in ("nb", "all"):
     #print(X.shape)
     #y = df_cont["ats_result"]
     y = df_cont.loc[X.index, "ats_result"]
-    print(y.value_counts(normalize=True))
+    #print(y.value_counts(normalize=True))
     model_nb, preds, probs, y_test = run_nb(X, y)
-    metrics = eval(y_test, preds, probs)
-    print("Naive Bayes Results:", metrics)
+    metrics_nb = get_eval(y_test, preds, probs)
+    print("\nNaive Bayes Results:", metrics_nb)
+    print_report(y_test, preds, "Naive Bayes")
+    save_metrics(metrics_nb, "nb")
+    print('\n')
     #print(pd.Series(preds).value_counts(normalize=True))
 
 
@@ -78,16 +90,22 @@ if args.model in ("hc", "all"):
     print("Running Hill Climbing for Bayes Network...")
     df_hc = df_cat.drop(columns=["roof", "surface", "home_rolling_ats"])
     model_hc, preds, probs, y_test = run_hc(df_hc)
-    metrics_hc = eval(y_test, preds, probs)
-    print("Hill Climbing Results:", metrics_hc)
+    metrics_hc = get_eval(y_test, preds, probs)
+    print("\nHill Climbing Results:", metrics_hc)
+    print_report(y_test, preds, "Hill Climbing")
+    save_metrics(metrics_hc, "hc")
     save_dag(model_hc, "hc")
+    print('\n')
 
 
+# PC ALGORITHM FOR BAYESIAN NETWORK STRUCTURE LEARNING
 if args.model in ("pc", "all"):
     print("Running PC Algorithm for Bayes Network...")
     df_pc = df_cat.drop(columns=["roof", "surface", "home_rolling_ats"])
     model_pc, preds, probs, y_test = run_pc(df_pc)
-    metrics_pc = eval(y_test, preds, probs)
-    print("PC Algorithm Results:", metrics_pc)
+    metrics_pc = get_eval(y_test, preds, probs)
+    print("\nPC Algorithm Results:", metrics_pc)
+    print_report(y_test, preds, "PC Algorithm")
+    save_metrics(metrics_pc, "pc")
     save_dag(model_pc, "pc")
 
