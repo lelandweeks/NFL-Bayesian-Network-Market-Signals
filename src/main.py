@@ -8,6 +8,9 @@ Date: June 2026
 
 
 import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--model", choices=["nb", "hc", "pc", "all"], default="all")
+args = parser.parse_args()
 
 from data_loader import get_data
 from features import get_cont, get_cat
@@ -16,26 +19,37 @@ from models.hill_climbing import run_hc
 from models.pc_algorithm import run_pc
 from evaluate import eval
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--model", choices=["nb", "hc", "pc", "all"], default="all")
-args = parser.parse_args()
 
+# save the dag diagram to disk
+OUTPUT_DIR = 'output/'
+def save_dag(model, model_name):
+    path = OUTPUT_DIR + model_name + '_dag.txt'
+    edges = sorted(list(model.edges()))
+    with open(path, 'w') as f:
+        f.write(str(len(edges)) + ' edges total\n')
+        for src, dst in edges:
+            f.write(f"  {src} -> {dst}\n")
+    print('DAG saved: ' + path)
 
 
 # get the data
 print("Loading data...")
 df = get_data()
 
-# get the continuous and then
+# get the continuous features and then
 # convert to categorical features
 print("Processing features...")
 df_cont = get_cont(df)
 print("Converting to categorical features...")
 df_cat = get_cat(df_cont)
 
+# realized that data column "line_quality" was not being respected 
+#print(df_cat["close_spread"].value_counts())
+
 
 # NAIVE BAYES BASELINE
 if args.model in ("nb", "all"):
+    # first results before all features implemented:
     # 81.6% accuracy with the following class distribution
     # loss     0.580172
     # cover    0.389368
@@ -53,31 +67,27 @@ if args.model in ("nb", "all"):
     #y = df_cont["ats_result"]
     y = df_cont.loc[X.index, "ats_result"]
     print(y.value_counts(normalize=True))
-    model, preds, probs, y_test = run_nb(X, y)
+    model_nb, preds, probs, y_test = run_nb(X, y)
     metrics = eval(y_test, preds, probs)
-    print("Naive Bayes results:", metrics)
+    print("Naive Bayes Results:", metrics)
     #print(pd.Series(preds).value_counts(normalize=True))
 
 
 # BAYESIAN NETWORK WITH HILL CLIMBING STRUCTURE LEARNING
 if args.model in ("hc", "all"):
-
     print("Running Hill Climbing for Bayes Network...")
-    X = df_cat.drop(columns=["ats_result", "roof", "surface",
-                            "home_rolling_ats"])
-    y = df_cat["ats_result"]
-    #print(df_cat.dtypes)
-    #print(df_cat.isnull().sum())
-
-    df_hc = df_cat.drop(columns=["home_rolling_ats"])
-    model = run_hc(df_hc)
-    #print("Hill Climbing edges:", model.edges())
-
+    df_hc = df_cat.drop(columns=["roof", "surface", "home_rolling_ats"])
+    model_hc, preds, probs, y_test = run_hc(df_hc)
+    metrics_hc = eval(y_test, preds, probs)
+    print("Hill Climbing Results:", metrics_hc)
+    save_dag(model_hc, "hc")
 
 
 if args.model in ("pc", "all"):
-    print("Running PC Algorithm...")
-    df_pc = df_cat.drop(columns=["home_rolling_ats"])
-    model_pc = run_pc(df_pc)
-    print("PC Algorithm edges:", model_pc.edges())
+    print("Running PC Algorithm for Bayes Network...")
+    df_pc = df_cat.drop(columns=["roof", "surface", "home_rolling_ats"])
+    model_pc, preds, probs, y_test = run_pc(df_pc)
+    metrics_pc = eval(y_test, preds, probs)
+    print("PC Algorithm Results:", metrics_pc)
+    save_dag(model_pc, "pc")
 

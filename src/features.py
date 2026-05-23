@@ -6,32 +6,34 @@ Authors: Leland Weeks, Johnny Belichev, & Ishant Somal
 Date: June 2026
 """
 
-import pandas as pd
-
 TARGET = "ats_result"
 
 NON_FEATURES = ["game_id", "date", "line_quality",
                 "home_scoring_efficiency", "away_scoring_efficiency"]
 
-CONTINUOUS_FEATURES = ["temp", "wind",
-                       "home_total_yards", "away_total_yards", 
-                       "home_turnovers", "away_turnovers",  
-                       "home_touchdowns", "away_touchdowns", 
-                       "home_epa_per_play", "away_epa_per_play",
-                       "home_completion_pct", "away_completion_pct",
-                       "open_spread", "close_spread", 
-                       "open_total", "close_total",
-                       "ml_home", "ml_visitor"]
+# number of prior games to calculate rolling ATS
+NUM_GMS_ROLLING_ATS = 5
 
-CATEGORICAL_FEATURES = ["season", "week", "roof", "surface",
-                        "home_team", "away_team"]
-                        
+"""
+CONTINUOUS FEATURES
+* temp, wind
+* home_total_yards, away_total_yards
+* home_turnovers, away_turnovers
+* home_touchdowns, away_touchdowns
+* home_epa_per_play, away_epa_per_play
+* home_completion_pct, away_completion_pct
+* open_spread, close_spread
+* open_total, close_total
+* ml_home, ml_visitor
+
+CATEGORICAL FEATURES
+* season, week
+* roof, surface
+* home_team, away_team
+"""
 
 # get continuous features
 def get_cont(df):
-
-    #print(df.head())
-    #print(df.columns)
 
     # copy the data instead of modifying in place
     df = df.copy()
@@ -54,7 +56,8 @@ def get_cont(df):
 
     # use these game stat features directly
     # but replace the NaN values
-    df["temp"] = df["temp"].fillna(72)
+    # 72 is avg temp across all games
+    df["temp"] = df["temp"].fillna(72) 
     df["wind"] = df["wind"].fillna(0)
 
     # derive game stat features
@@ -81,10 +84,6 @@ def get_cont(df):
     df["spread_move"] = df["close_spread"] - df["open_spread"] 
     df["total_move"] = df["close_total"]  - df["open_total"]
 
-
-    #df["p_ml_home"] = None # df["ml_home"] / (df["ml_home"] + df["ml_visitor"])
-    #df["p_ml_visitor"] = None # df["ml_visitor"] / (df["ml_home"] + df["ml_visitor"])
-
     # convert moneyline odds to win probability i.e. vig removed
     # needed for pc algorithm to learn dependencies
     raw_home = []
@@ -110,9 +109,8 @@ def get_cont(df):
     df.drop(columns=["open_spread", "open_total",
                      "ml_home", "ml_visitor"], inplace=True)
 
-
-
     # make sure to not introduce data leakage by using future games
+    # create temporary column
     df["cover_flag"] = (df[TARGET] == "cover").astype(int)
 
     rolling_ats = []
@@ -128,11 +126,22 @@ def get_cont(df):
         ]
 
         if len(prior_games) == 0:
+            # eventually drop these rows anyway but
+            # get a data error if try to calculate without it
             rolling_ats.append(None)
         else:
-            rolling_ats.append(prior_games["cover_flag"].mean())
+            # don't include the current game in the rolling average
+            # only include the most recent games defined by NUM_GMS_ROLLING_ATS
+            rolling_ats.append(prior_games.tail(NUM_GMS_ROLLING_ATS)["cover_flag"].mean())
 
     df["home_rolling_ats"] = rolling_ats
+
+    # drop the rows with missing values i.e. the rows from the
+    # first game of the season because there is no prior game
+    # to calculate rolling ATS
+    df = df.dropna(subset=["home_rolling_ats"])
+
+    # drop the temp colummn needed to calculate rolling ATS
     df = df.drop(columns=["cover_flag"])
 
     # drop non-feature columns that are not needed for the model
@@ -160,16 +169,12 @@ def get_cat(df):
     df["turnover_diff"] = df["turnover_diff"].apply(lambda x: "neg" if x < -1 else "pos" if x > 1 else "neutral")
     df["td_diff"] = df["td_diff"].apply(lambda x: "neg" if x < -1 else "pos" if x > 1 else "neutral")
     df["completion_diff"] = df["completion_diff"].apply(lambda x: "neg" if x < -0.05 else "pos" if x > 0.05 else "neutral")
-
-    df["close_spread"] = df["close_spread"].apply(lambda x: "home_fav" if x < 0 else "visitor_fav")
+    df["close_spread"] = df["close_spread"].apply(lambda x: "small" if x <= 3 else "large" if x > 7 else "medium")
     df["close_total"] = df["close_total"].apply(lambda x: "over" if x > 45 else "under")
-    df["spread_move"] = df["spread_move"].apply(lambda x: "towards_home" if x < 0 else "towards_visitor" if x > 0 else "no_move")
+    df["spread_move"] = df["spread_move"].apply(lambda x: "bigger" if x > 0 else "smaller" if x < 0 else "no_move")
     df["total_move"] = df["total_move"].apply(lambda x: "towards_over" if x > 0 else "towards_under" if x < 0 else "no_move")
     df["home_win_prob"] = df["home_win_prob"].apply(lambda x: "low" if x < 0.4 else "high" if x > 0.6 else "mid")
-
     df["home_rolling_ats"] = df["home_rolling_ats"].apply(lambda x: "below" if x is not None and x < 0.5 else ("above" if x is not None else None))
- 
-    #df.drop(columns=["home_team", "away_team"], inplace=True)
 
     return df 
 
