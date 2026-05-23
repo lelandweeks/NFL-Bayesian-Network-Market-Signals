@@ -16,6 +16,7 @@ from pgmpy.estimators import HillClimbSearch, BayesianEstimator, BIC
 
 TARGET = "ats_result"
 
+
 def run_hc(df):
     train, test = train_test_split(df, test_size=0.2, random_state=42)
 
@@ -24,8 +25,15 @@ def run_hc(df):
     # BIC is the standard scoring method for hill climbing
     best_structure = hc.estimate(scoring_method=BIC(train), max_iter=10000)
 
+    # post-process: remove reversed edge and re-add in correct causal direction
+    # ats_result cannot cause game stats — outcomes don't cause their own predictors
+    edges = list(best_structure.edges())
+    edges = [e for e in edges if e[0] != TARGET]
+    if (TARGET, "epa_diff") in list(best_structure.edges()):
+        edges.append(("epa_diff", TARGET))
+
     # discrete model for categorical features
-    model = DiscreteBayesianNetwork(best_structure.edges())
+    model = DiscreteBayesianNetwork(edges)
 
     # BayesianEstimator handles sparse data by adding pseudocounts
     # for states not seen in training, preventing zero-probability crashes
