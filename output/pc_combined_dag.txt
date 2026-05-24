@@ -1,0 +1,17 @@
+16 edges total
+  close_spread -> home_win_prob
+  completion_diff -> td_diff
+  epa_diff -> ats_result
+  epa_diff -> completion_diff
+  epa_diff -> home_win_prob
+  home_win_prob -> ats_result
+  spread_move -> close_spread
+  spread_move -> home_win_prob
+  spread_move -> total_move
+  td_diff -> ats_result
+  temp -> wind
+  turnover_diff -> epa_diff
+  wind -> close_total
+  yards_diff -> completion_diff
+  yards_diff -> epa_diff
+  yards_diff -> td_diff

@@ -17,16 +17,17 @@ project/
 │   ├── raw/                    # nflverse game stats + SBR odds CSVs (unmodified)
 │   └── processed/              # merged, cleaned, discretized data
 ├── src/
-│   ├── data.py                 # data loading and preprocessing
-│   ├── features.py             # feature engineering (rolling ATS, discretization)
+│   ├── data_loader.py          # data loading and merging
+│   ├── features.py             # feature engineering (get_cont) and discretization (get_cat)
+│   ├── evaluate.py             # accuracy, log loss, classification report, confusion matrix
+│   ├── ablation.py             # ablation logic and feature group definitions
 │   ├── models/
 │   │   ├── naive_bayes.py      # Gaussian Naive Bayes baseline
 │   │   ├── hill_climbing.py    # BN structure learning via Hill Climbing
-│   │   └── pc_algorithm.py     # DAG validation via PC algorithm
-│   ├── evaluate.py             # accuracy, log loss, brier score
-│   └── ablation.py             # stats-only / market-only / combined runs
-├── results/                    # saved metrics, learned DAG exports
-├── main.py                     # full pipeline orchestrator
+│   │   └── pc_algorithm.py     # BN structure learning via PC Algorithm
+│   └── main.py                 # pipeline orchestrator
+├── output/                     # learned DAG edge lists, ablation_summary.csv
+├── docs/                       # proposal, diagrams, learnings log
 └── README.md
 ```
 
@@ -35,58 +36,78 @@ project/
 ## Setup
 
 ```bash
-pip install pgmpy scikit-learn pandas numpy
+pip install -r requirements.txt
 ```
+
+> **Note:** `pgmpy` is pinned to `1.0.0`. Newer versions have breaking API changes that are incompatible with this codebase. Do not upgrade it.
 
 ---
 
 ## Usage
 
-### Run the full pipeline
+### Run all models, all configs (full ablation)
 
 ```bash
-python main.py
+python src/main.py --model all --config all
 ```
 
-Runs preprocessing → feature engineering → all three models → ablation → evaluation. Outputs metrics to `results/`.
+### Run a specific model
 
-### Run individual scripts
-
-**Preprocess data**
 ```bash
-python src/data.py
+python src/main.py --model nb
+python src/main.py --model hc
+python src/main.py --model pc
 ```
-Merges nflverse and SBR datasets by season and matchup. Outputs cleaned data to `data/processed/`.
 
-**Feature engineering**
-```bash
-python src/features.py
-```
-Computes rolling ATS (using only prior games), discretizes continuous features for BN models.
+### Run a specific feature config
 
-**Naive Bayes baseline**
 ```bash
-python src/models/naive_bayes.py
+python src/main.py --config stats
+python src/main.py --config market
+python src/main.py --config combined
 ```
-Trains and evaluates a Gaussian Naive Bayes classifier. Saves metrics to `results/naive_bayes.json`.
 
-**Hill Climbing (BN structure learning)**
-```bash
-python src/models/hill_climbing.py
-```
-Learns DAG structure via Hill Climbing with BIC scoring. Saves learned structure to `results/hc_dag.json`.
+### Combine flags
 
-**PC Algorithm (DAG validation)**
 ```bash
-python src/models/pc_algorithm.py
+python src/main.py --model nb --config all
+python src/main.py --model all --config combined
 ```
-Runs constraint-based structure learning as a validation check on the Hill Climbing DAG. Saves result to `results/pc_dag.json`.
 
-**Ablation runs**
-```bash
-python src/ablation.py
-```
-Runs all three models under three feature configurations: stats-only, market-only, and combined. Outputs comparison table to `results/ablation.csv`.
+Default behavior (`python src/main.py`) runs all models on the combined feature config.
+
+---
+
+## Feature Configs
+
+| Config | Features |
+|--------|----------|
+| `stats` | EPA diff, yards diff, turnover diff, TD diff, completion diff, temp, wind, roof, surface, rolling ATS |
+| `market` | Close spread, close total, spread move, total move, home win probability |
+| `combined` | All of the above |
+
+---
+
+## Outputs
+
+All outputs are written to `output/`:
+
+- `ablation_summary.csv` — accuracy and log loss for every model/config combination
+- `hc_{config}_dag.txt` — learned HC DAG edge list per config
+- `pc_{config}_dag.txt` — learned PC DAG edge list per config
+
+---
+
+## Key Results
+
+| Config | NB Accuracy | HC Accuracy | PC Accuracy | NB Log Loss | PC Log Loss |
+|--------|-------------|-------------|-------------|-------------|-------------|
+| Stats only | **84.1%** | 50.4% | 50.4% | **0.439** | 0.368 |
+| Market only | 56.4% | 58.6% | 58.6% | 0.840 | 0.760 |
+| Combined | 81.0% | 50.4% | 47.3% | 0.538 | **0.345** |
+| Majority baseline | 58.0% | — | — | — | — |
+
+Market signals do not improve NB classification accuracy — stats-only NB outperforms combined. BN models outperform NB on market-only accuracy. Combined PC achieves the best probability calibration (log loss).
 
 ---
 
@@ -97,10 +118,10 @@ Runs all three models under three feature configurations: stats-only, market-onl
 | Apr 26 | Data pipeline complete | ✅ Done |
 | May 3 | Project Proposal | ✅ Done |
 | May 7 | Proposal Presentation | ✅ Done |
-| May 14 | DAG validation via PC algorithm | — |
-| May 17 | Naive Bayes baseline implemented and evaluated | — |
-| May 21 | BN with Hill Climbing implemented | — |
-| May 24 | Ablation runs (stats-only / market-only / combined) | — |
+| May 14 | DAG validation via PC algorithm | ✅ Done |
+| May 17 | Naive Bayes baseline implemented and evaluated | ✅ Done |
+| May 21 | BN with Hill Climbing implemented | ✅ Done |
+| May 24 | Ablation runs (stats-only / market-only / combined) | ✅ Done |
 | May 26 | Results interpreted and written up | — |
 | May 28 | Paper draft complete | — |
 | May 31 | Final revisions and artifact submitted | — |

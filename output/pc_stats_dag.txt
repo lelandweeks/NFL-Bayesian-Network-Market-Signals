@@ -1,0 +1,12 @@
+11 edges total
+  completion_diff -> td_diff
+  epa_diff -> ats_result
+  epa_diff -> completion_diff
+  epa_diff -> td_diff
+  home_rolling_ats -> temp
+  turnover_diff -> ats_result
+  turnover_diff -> epa_diff
+  wind -> temp
+  yards_diff -> completion_diff
+  yards_diff -> epa_diff
+  yards_diff -> td_diff

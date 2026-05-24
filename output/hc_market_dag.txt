@@ -1,0 +1,7 @@
+6 edges total
+  close_spread -> home_win_prob
+  home_win_prob -> ats_result
+  home_win_prob -> spread_move
+  home_win_prob -> total_move
+  spread_move -> total_move
+  total_move -> close_total

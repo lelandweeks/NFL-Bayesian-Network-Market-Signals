@@ -15,11 +15,11 @@ venv/
 
 .DS_Store
 Thumbs.db
-docs/tex/*.aux
-docs/tex/*.bbl
-docs/tex/*.blg
-docs/tex/*.log
-docs/tex/*.out
-docs/tex/*.toc
-docs/tex/*.synctex.gz
+docs/proposal/*.aux
+docs/proposal/*.bbl
+docs/proposal/*.blg
+docs/proposal/*.log
+docs/proposal/*.out
+docs/proposal/*.toc
+docs/proposal/*.synctex.gz
 

@@ -1,0 +1,192 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="560pt" height="332pt" viewBox="0.00 0.00 560.00 332.00">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 328)">
+<title>HC_combined</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-328 555.84,-328 555.84,4 -4,4"/>
+<!-- wind -->
+<g id="node1" class="node">
+<title>wind</title>
+<polygon fill="#e1f5ee" stroke="#0f6e56" points="94,-252 40,-252 40,-216 94,-216 94,-252"/>
+<text xml:space="preserve" text-anchor="middle" x="67" y="-230.7" font-family="Arial" font-size="11.00" fill="#085041">wind</text>
+</g>
+<!-- temp -->
+<g id="node2" class="node">
+<title>temp</title>
+<polygon fill="#e1f5ee" stroke="#0f6e56" points="54,-180 0,-180 0,-144 54,-144 54,-180"/>
+<text xml:space="preserve" text-anchor="middle" x="27" y="-158.7" font-family="Arial" font-size="11.00" fill="#085041">temp</text>
+</g>
+<!-- wind&#45;&gt;temp -->
+<g id="edge2" class="edge">
+<title>wind-&gt;temp</title>
+<path fill="none" stroke="black" d="M57.11,-215.7C52.66,-207.9 47.29,-198.51 42.33,-189.83"/>
+<polygon fill="black" stroke="black" points="45.53,-188.36 37.52,-181.42 39.45,-191.84 45.53,-188.36"/>
+</g>
+<!-- close_total -->
+<g id="node3" class="node">
+<title>close_total</title>
+<polygon fill="#e1f5ee" stroke="#0f6e56" points="140.29,-180 71.71,-180 71.71,-144 140.29,-144 140.29,-180"/>
+<text xml:space="preserve" text-anchor="middle" x="106" y="-158.7" font-family="Arial" font-size="11.00" fill="#085041">close_total</text>
+</g>
+<!-- wind&#45;&gt;close_total -->
+<g id="edge1" class="edge">
+<title>wind-&gt;close_total</title>
+<path fill="none" stroke="black" d="M76.64,-215.7C80.94,-207.98 86.1,-198.71 90.89,-190.11"/>
+<polygon fill="black" stroke="black" points="93.92,-191.87 95.73,-181.43 87.81,-188.46 93.92,-191.87"/>
+</g>
+<!-- total_move -->
+<g id="node7" class="node">
+<title>total_move</title>
+<polygon fill="#e6f1fb" stroke="#185fa5" points="158.9,-108 89.1,-108 89.1,-72 158.9,-72 158.9,-108"/>
+<text xml:space="preserve" text-anchor="middle" x="124" y="-86.7" font-family="Arial" font-size="11.00" fill="#0c447c">total_move</text>
+</g>
+<!-- close_total&#45;&gt;total_move -->
+<g id="edge3" class="edge">
+<title>close_total-&gt;total_move</title>
+<path fill="none" stroke="black" d="M110.45,-143.7C112.35,-136.32 114.61,-127.52 116.74,-119.25"/>
+<polygon fill="black" stroke="black" points="120.12,-120.13 119.22,-109.57 113.34,-118.38 120.12,-120.13"/>
+</g>
+<!-- close_spread -->
+<g id="node4" class="node">
+<title>close_spread</title>
+<polygon fill="#e6f1fb" stroke="#185fa5" points="327.72,-324 246.28,-324 246.28,-288 327.72,-288 327.72,-324"/>
+<text xml:space="preserve" text-anchor="middle" x="287" y="-302.7" font-family="Arial" font-size="11.00" fill="#0c447c">close_spread</text>
+</g>
+<!-- home_win_prob -->
+<g id="node5" class="node">
+<title>home_win_prob</title>
+<polygon fill="#e6f1fb" stroke="#185fa5" points="252.14,-180 157.86,-180 157.86,-144 252.14,-144 252.14,-180"/>
+<text xml:space="preserve" text-anchor="middle" x="205" y="-158.7" font-family="Arial" font-size="11.00" fill="#0c447c">home_win_prob</text>
+</g>
+<!-- close_spread&#45;&gt;home_win_prob -->
+<g id="edge5" class="edge">
+<title>close_spread-&gt;home_win_prob</title>
+<path fill="none" stroke="black" d="M276.95,-287.59C262.85,-263.18 237.1,-218.58 220.53,-189.89"/>
+<polygon fill="black" stroke="black" points="223.67,-188.33 215.64,-181.42 217.61,-191.83 223.67,-188.33"/>
+</g>
+<!-- epa_diff -->
+<g id="node8" class="node">
+<title>epa_diff</title>
+<polygon fill="#eeedfe" stroke="#534ab7" points="387.57,-252 332.43,-252 332.43,-216 387.57,-216 387.57,-252"/>
+<text xml:space="preserve" text-anchor="middle" x="360" y="-230.7" font-family="Arial" font-size="11.00" fill="#3c3489">epa_diff</text>
+</g>
+<!-- close_spread&#45;&gt;epa_diff -->
+<g id="edge4" class="edge">
+<title>close_spread-&gt;epa_diff</title>
+<path fill="none" stroke="black" d="M305.04,-287.7C313.73,-279.37 324.31,-269.22 333.86,-260.07"/>
+<polygon fill="black" stroke="black" points="336.02,-262.84 340.82,-253.39 331.18,-257.79 336.02,-262.84"/>
+</g>
+<!-- spread_move -->
+<g id="node6" class="node">
+<title>spread_move</title>
+<polygon fill="#e6f1fb" stroke="#185fa5" points="197.32,-36 114.68,-36 114.68,0 197.32,0 197.32,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="156" y="-14.7" font-family="Arial" font-size="11.00" fill="#0c447c">spread_move</text>
+</g>
+<!-- home_win_prob&#45;&gt;spread_move -->
+<g id="edge12" class="edge">
+<title>home_win_prob-&gt;spread_move</title>
+<path fill="none" stroke="black" d="M198.99,-143.59C190.64,-119.4 175.45,-75.36 165.54,-46.65"/>
+<polygon fill="black" stroke="black" points="168.97,-45.85 162.4,-37.54 162.35,-48.14 168.97,-45.85"/>
+</g>
+<!-- home_win_prob&#45;&gt;total_move -->
+<g id="edge13" class="edge">
+<title>home_win_prob-&gt;total_move</title>
+<path fill="none" stroke="black" d="M184.98,-143.7C175.24,-135.28 163.36,-125.02 152.69,-115.79"/>
+<polygon fill="black" stroke="black" points="155.07,-113.23 145.22,-109.34 150.5,-118.52 155.07,-113.23"/>
+</g>
+<!-- home_rolling_ats -->
+<g id="node13" class="node">
+<title>home_rolling_ats</title>
+<polygon fill="#eeedfe" stroke="#534ab7" points="314.89,-108 215.11,-108 215.11,-72 314.89,-72 314.89,-108"/>
+<text xml:space="preserve" text-anchor="middle" x="265" y="-86.7" font-family="Arial" font-size="11.00" fill="#3c3489">home_rolling_ats</text>
+</g>
+<!-- home_win_prob&#45;&gt;home_rolling_ats -->
+<g id="edge11" class="edge">
+<title>home_win_prob-&gt;home_rolling_ats</title>
+<path fill="none" stroke="black" d="M219.83,-143.7C226.81,-135.56 235.27,-125.69 242.97,-116.7"/>
+<polygon fill="black" stroke="black" points="245.5,-119.12 249.35,-109.25 240.19,-114.57 245.5,-119.12"/>
+</g>
+<!-- total_move&#45;&gt;spread_move -->
+<g id="edge16" class="edge">
+<title>total_move-&gt;spread_move</title>
+<path fill="none" stroke="black" d="M131.91,-71.7C135.4,-64.07 139.58,-54.92 143.48,-46.4"/>
+<polygon fill="black" stroke="black" points="146.58,-48.03 147.55,-37.48 140.21,-45.12 146.58,-48.03"/>
+</g>
+<!-- epa_diff&#45;&gt;home_win_prob -->
+<g id="edge8" class="edge">
+<title>epa_diff-&gt;home_win_prob</title>
+<path fill="none" stroke="black" d="M331.93,-220.32C310.23,-210.52 279.66,-196.72 253.96,-185.11"/>
+<polygon fill="black" stroke="black" points="255.58,-182 245.02,-181.08 252.7,-188.38 255.58,-182"/>
+</g>
+<!-- completion_diff -->
+<g id="node9" class="node">
+<title>completion_diff</title>
+<polygon fill="#eeedfe" stroke="#534ab7" points="359.99,-180 270.01,-180 270.01,-144 359.99,-144 359.99,-180"/>
+<text xml:space="preserve" text-anchor="middle" x="315" y="-158.7" font-family="Arial" font-size="11.00" fill="#3c3489">completion_diff</text>
+</g>
+<!-- epa_diff&#45;&gt;completion_diff -->
+<g id="edge7" class="edge">
+<title>epa_diff-&gt;completion_diff</title>
+<path fill="none" stroke="black" d="M348.88,-215.7C343.81,-207.81 337.7,-198.3 332.07,-189.55"/>
+<polygon fill="black" stroke="black" points="335.17,-187.9 326.81,-181.38 329.28,-191.68 335.17,-187.9"/>
+</g>
+<!-- td_diff -->
+<g id="node10" class="node">
+<title>td_diff</title>
+<polygon fill="#eeedfe" stroke="#534ab7" points="432,-180 378,-180 378,-144 432,-144 432,-180"/>
+<text xml:space="preserve" text-anchor="middle" x="405" y="-158.7" font-family="Arial" font-size="11.00" fill="#3c3489">td_diff</text>
+</g>
+<!-- epa_diff&#45;&gt;td_diff -->
+<g id="edge9" class="edge">
+<title>epa_diff-&gt;td_diff</title>
+<path fill="none" stroke="black" d="M371.12,-215.7C376.19,-207.81 382.3,-198.3 387.93,-189.55"/>
+<polygon fill="black" stroke="black" points="390.72,-191.68 393.19,-181.38 384.83,-187.9 390.72,-191.68"/>
+</g>
+<!-- turnover_diff -->
+<g id="node12" class="node">
+<title>turnover_diff</title>
+<polygon fill="#eeedfe" stroke="#534ab7" points="468.57,-36 391.43,-36 391.43,0 468.57,0 468.57,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="430" y="-14.7" font-family="Arial" font-size="11.00" fill="#3c3489">turnover_diff</text>
+</g>
+<!-- epa_diff&#45;&gt;turnover_diff -->
+<g id="edge10" class="edge">
+<title>epa_diff-&gt;turnover_diff</title>
+<path fill="none" stroke="black" d="M387.93,-222.96C406.63,-214.61 429.81,-200.7 441,-180 463.65,-138.11 451.38,-80.88 440.57,-47.14"/>
+<polygon fill="black" stroke="black" points="443.88,-46.02 437.35,-37.68 437.26,-48.28 443.88,-46.02"/>
+</g>
+<!-- ats_result -->
+<g id="node14" class="node">
+<title>ats_result</title>
+<polygon fill="#eaf3de" stroke="#3b6d11" stroke-width="2" points="551.84,-180 488.16,-180 488.16,-144 551.84,-144 551.84,-180"/>
+<text xml:space="preserve" text-anchor="middle" x="520" y="-158.7" font-family="Arial" font-size="11.00" fill="#27500a">ats_result</text>
+</g>
+<!-- epa_diff&#45;&gt;ats_result -->
+<g id="edge6" class="edge">
+<title>epa_diff-&gt;ats_result</title>
+<path fill="none" stroke="#0f6e56" stroke-width="2" d="M387.87,-220.81C411.97,-210.26 447.25,-194.83 475.29,-182.56"/>
+<polygon fill="#0f6e56" stroke="#0f6e56" stroke-width="2" points="476.67,-185.78 484.43,-178.56 473.87,-179.36 476.67,-185.78"/>
+</g>
+<!-- yards_diff -->
+<g id="node11" class="node">
+<title>yards_diff</title>
+<polygon fill="#eeedfe" stroke="#534ab7" points="431.84,-108 368.16,-108 368.16,-72 431.84,-72 431.84,-108"/>
+<text xml:space="preserve" text-anchor="middle" x="400" y="-86.7" font-family="Arial" font-size="11.00" fill="#3c3489">yards_diff</text>
+</g>
+<!-- completion_diff&#45;&gt;yards_diff -->
+<g id="edge14" class="edge">
+<title>completion_diff-&gt;yards_diff</title>
+<path fill="none" stroke="black" d="M336.01,-143.7C346.33,-135.2 358.94,-124.81 370.23,-115.51"/>
+<polygon fill="black" stroke="black" points="372.27,-118.37 377.77,-109.31 367.82,-112.96 372.27,-118.37"/>
+</g>
+<!-- td_diff&#45;&gt;yards_diff -->
+<g id="edge15" class="edge">
+<title>td_diff-&gt;yards_diff</title>
+<path fill="none" stroke="black" d="M403.76,-143.7C403.24,-136.41 402.62,-127.73 402.04,-119.54"/>
+<polygon fill="black" stroke="black" points="405.53,-119.34 401.33,-109.61 398.55,-119.84 405.53,-119.34"/>
+</g>
+<!-- yards_diff&#45;&gt;turnover_diff -->
+<g id="edge17" class="edge">
+<title>yards_diff-&gt;turnover_diff</title>
+<path fill="none" stroke="black" d="M407.42,-71.7C410.65,-64.15 414.52,-55.12 418.14,-46.68"/>
+<polygon fill="black" stroke="black" points="421.35,-48.07 422.07,-37.5 414.92,-45.31 421.35,-48.07"/>
+</g>
+</g>
+</svg>
