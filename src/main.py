@@ -6,39 +6,25 @@ Authors: Leland Weeks, Johnny Belichev, & Ishant Somal
 Date: June 2026
 """
 
-
 import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument("--model", choices=["nb", "hc", "pc", "all"], default="all")
-args = parser.parse_args()
+import logging
 
 from data_loader import get_data
 from features import get_cont, get_cat
-from models.naive_bayes import run_nb
-from models.hill_climbing import run_hc
-from models.pc_algorithm import run_pc
-from evaluate import get_eval, print_report
-
+from ablation import run_ablation
 
 OUTPUT_DIR = 'output/'
 
-# save the metrics to disk
-def save_metrics(metrics, model_name):
-    path = OUTPUT_DIR + model_name + '_metrics.txt'
-    with open(path, 'w') as f:
-        f.write(f"{model_name}\n{metrics}\n")
-    print('Metrics saved: ' + path)
+logging.getLogger("pgmpy").setLevel(logging.ERROR)
 
-# save the dag diagram to disk
-def save_dag(model, model_name):
-    path = OUTPUT_DIR + model_name + '_dag.txt'
-    edges = sorted(list(model.edges()))
-    with open(path, 'w') as f:
-        f.write(str(len(edges)) + ' edges total\n')
-        for src, dst in edges:
-            f.write(f"  {src} -> {dst}\n")
-    print('DAG saved: ' + path)
-
+parser = argparse.ArgumentParser()
+parser.add_argument("--model",  
+                    choices=["nb", "hc", "pc", "all"], 
+                    default="all")
+parser.add_argument("--config", 
+                    choices=["stats", "market", "combined", "all"], 
+                    default="combined")
+args = parser.parse_args()
 
 # get the data
 print("Loading data...")
@@ -50,62 +36,19 @@ print("Processing features...")
 df_cont = get_cont(df)
 print("Converting to categorical features...")
 df_cat = get_cat(df_cont)
-print('\n')
 
-# realized that data column "line_quality" was not being respected 
-#print(df_cat["close_spread"].value_counts())
+# run
+models = ["nb", "hc", "pc"] 
+if args.model and args.model != "all":
+    models = [args.model]
+configs = ["stats", "market", "combined"]
+if args.config and args.config != "all":
+    configs = [args.config]
 
+results = run_ablation(df_cont, df_cat, models, configs, OUTPUT_DIR)
 
-# NAIVE BAYES BASELINE
-if args.model in ("nb", "all"):
-    # first results before all features implemented:
-    # 81.6% accuracy with the following class distribution
-    # loss     0.580172
-    # cover    0.389368
-    # push     0.030460
-    # signals that 81.6% is a valid baseline because it is significantly
-    # better than the naive majority class baseline of 58%
-    # i.e. if we just predicted "loss" for every game, we would be correct 58% of the time
-
-    print("Running Naive Bayes baseline...")
-    X = df_cont.drop(columns=["ats_result", "roof", "surface"])
-    X = X.dropna(subset=["home_rolling_ats"])
-
-    #print(X.isnull().sum())
-    #print(X.shape)
-    #y = df_cont["ats_result"]
-    y = df_cont.loc[X.index, "ats_result"]
-    #print(y.value_counts(normalize=True))
-    model_nb, preds, probs, y_test = run_nb(X, y)
-    metrics_nb = get_eval(y_test, preds, probs)
-    print("\nNaive Bayes Results:", metrics_nb)
-    print_report(y_test, preds, "Naive Bayes")
-    save_metrics(metrics_nb, "nb")
-    print('\n')
-    #print(pd.Series(preds).value_counts(normalize=True))
-
-
-# BAYESIAN NETWORK WITH HILL CLIMBING STRUCTURE LEARNING
-if args.model in ("hc", "all"):
-    print("Running Hill Climbing for Bayes Network...")
-    df_hc = df_cat.drop(columns=["roof", "surface", "home_rolling_ats"])
-    model_hc, preds, probs, y_test = run_hc(df_hc)
-    metrics_hc = get_eval(y_test, preds, probs)
-    print("\nHill Climbing Results:", metrics_hc)
-    print_report(y_test, preds, "Hill Climbing")
-    save_metrics(metrics_hc, "hc")
-    save_dag(model_hc, "hc")
-    print('\n')
-
-
-# PC ALGORITHM FOR BAYESIAN NETWORK STRUCTURE LEARNING
-if args.model in ("pc", "all"):
-    print("Running PC Algorithm for Bayes Network...")
-    df_pc = df_cat.drop(columns=["roof", "surface", "home_rolling_ats"])
-    model_pc, preds, probs, y_test = run_pc(df_pc)
-    metrics_pc = get_eval(y_test, preds, probs)
-    print("\nPC Algorithm Results:", metrics_pc)
-    print_report(y_test, preds, "PC Algorithm")
-    save_metrics(metrics_pc, "pc")
-    save_dag(model_pc, "pc")
-
+# print summary
+print("\nResults Summary")
+print(f"{'config'} {'model'} {'accuracy'} {'log_loss'}")
+for r in results:
+    print(f"{r['config']} {r['model']} {r['accuracy']} {r['log_loss']}")
