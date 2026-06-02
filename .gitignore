@@ -22,4 +22,10 @@ docs/proposal/*.log
 docs/proposal/*.out
 docs/proposal/*.toc
 docs/proposal/*.synctex.gz
-
+docs/final_report/*.aux
+docs/final_report/*.bbl
+docs/final_report/*.blg
+docs/final_report/*.log
+docs/final_report/*.out
+docs/final_report/*.toc
+docs/final_report/*.synctex.gz
