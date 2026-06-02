@@ -1,0 +1,53 @@
+\documentclass[11pt]{article}
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{enumitem}
+\usepackage{parskip}          % block paragraphs: no first-line indent, space between
+\setlist[itemize]{leftmargin=1.5em, itemsep=6pt, topsep=4pt, parsep=0pt, label=\textbullet}
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries Bayesian Network Modeling of NFL Game Stats and Market\\[2pt]
+Signals for Value Identification}\\[14pt]
+\begin{tabular}{c@{\hspace{3.5em}}c@{\hspace{3.5em}}c}
+{\large Leland Weeks} & {\large Johnny Belichev} & {\large Ishant Somal}\\[2pt]
+\texttt{lhw22@drexel.edu} & \texttt{jb4458@drexel.edu} & \texttt{is488@drexel.edu}
+\end{tabular}\\[10pt]
+June 4, 2026
+\end{center}
+
+\vspace{14pt}
+
+\begin{center}
+{\bfseries\large How the Implementation Reflects and Differs from the Proposal}
+\end{center}
+
+\vspace{6pt}
+
+The project was implemented substantially as proposed: a Naive Bayes baseline and Bayesian
+Network structure learning with Hill Climbing, the three-way stats / market / combined ablation,
+Gaussian Naive Bayes for the continuous features, and the proposed dataset of 3{,}990 NFL games
+over 15 seasons joining nflverse statistics to Sportsbook Review market data.
+
+Three elements differ from the proposal:
+
+\begin{itemize}
+  \item \textbf{PC algorithm --- expanded.} Proposed as a secondary validation check, it became a
+  central result: run independently, it confirmed the corrected direction of a causally impossible
+  edge that Hill Climbing had produced, turning the dual-algorithm comparison into a contribution
+  rather than a footnote.
+
+  \item \textbf{Result framing --- refined.} The proposal anticipated a binary outcome --- either the
+  network beats the baseline, or the closing line is efficient. The results supported a more specific
+  conclusion: market signals do not improve accuracy but do improve calibration, i.e.\ partial
+  efficiency.
+
+  \item \textbf{Metrics --- reduced.} The proposal listed Brier score, with AUC-ROC as optional. The
+  final evaluation reports accuracy and log loss.
+\end{itemize}
+
+All other elements were delivered as proposed.
+
+\end{document}
