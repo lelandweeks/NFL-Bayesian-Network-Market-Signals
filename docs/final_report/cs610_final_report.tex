@@ -31,17 +31,52 @@
 
 \section{Abstract}
 
+This project studies whether NFL betting market signals contain predictive information beyond what is already captured by game statistics. Specifically, we evaluate whether line movement and closing market information improve prediction of against-the-spread outcomes after accounting for game fundamentals such as offensive efficiency, defensive efficiency, turnover margin, and recent team performance. We use a dataset of 3,990 NFL games across 15 seasons, combining game statistics from NFLverse with historical betting market data from Sportsbook Review. Our approach compares stats-only, market-only, and combined feature configurations using Naive Bayes as a baseline and Bayesian Network structure-learning methods, including Hill Climbing and the PC algorithm, to test conditional relationships among game fundamentals, market signals, and ATS outcome. The results show that market signals did not produce a clear predictive improvement in classification accuracy beyond game statistics. The combined configuration that included market features, however, achieved the best probability calibration (the lowest log loss) of all nine ablations, indicating that market signals improve the confidence of predictions even when they do not change which class is predicted.  The contribution of this project is not a betting system, but a conditional-dependence analysis of information overlap between NFL game statistics and betting market behavior. 
+
 \section{Introduction}
+
+NFL game outcomes can be studied through two major information sources: team performance statistics and betting market behavior. Game statistics describe what teams have done on the field, including efficiency, turnovers, scoring, and recent performance. Market signals, such as opening spreads, closing spreads, moneylines, totals, and line movement, reflect how sportsbooks and bettors price a game before kickoff. Both sources may contain useful information, but it is not obvious whether they contain independent information. 
+
+The central question of this project is whether line movement contains predictive value beyond game statistics. In other words, after accounting for game fundamentals, does market movement still help predict whether a team covers the spread? This question is connected to market efficiency. Sports betting markets are often treated as relatively efficient because closing lines summarize large amounts of available information. However, market efficiency does not mean markets are always perfect. Small inefficiencies may still exist. We frame this as both a prediction problem and a conditional-dependence problem. Rather than only asking which model performs best, we also examine whether the learned Bayesian Network structures support a direct relationship between line movement and ATS outcome.  
+
+The contributions of this work are threefold (1) the first formal test of conditional independence between NFL game statistics, betting market signals, and ATS outcome using Bayesian Network structure learning, (2) a calibration-versus-accuracy analysis of whether market information adds value beyond game statistics, and (3) a dual-algorithm structure-learning design in which the constraint-based PC algorithm independently validates the score-based Hill Climbing result. 
+
 
 \section{Related Work}
 
+This project builds on three areas of prior work: Bayesian Networks for sports prediction, models that combine statistics with betting odds, and studies of sports betting market efficiency. 
+
+Constantinou, Fenton, and Neil developed Bayesian Network models for association football prediction, showing that BNs can represent uncertain relationships between team strength, form, and match outcomes [3], [4]. Their work demonstrates that probabilistic graphical models are useful in sports forecasting. However, their models focus mainly on game-related factors and do not treat betting market movement as a separate source of information. 
+
+Other research combines historical performance data with bookmaker odds. Egidi, Pauli, and Torelli use a hierarchical Bayesian model that blends team history with betting odds [5]. Hubáček, Šourek, and Železný study machine-learning methods that compare model predictions against bookmaker odds to identify potential betting opportunities [6]. These studies show that market information can be useful, but they generally treat odds as predictive features rather than testing whether market movement adds information after conditioning on game statistics. 
+
+A third group of studies focuses directly on betting market efficiency. Simon analyzes real-time betting line movement and finds that betting markets are often reliable but not always fully efficient [7]. Moskowitz studies sports betting through the lens of asset pricing and market behavior [8]. Szalkowski and Nelson examine NFL opening and closing lines as predictors of game outcomes [9]. These works are closely related to our topic, but they do not combine game statistics and market movement inside a Bayesian Network framework. 
+
+Our project differs by combining these perspectives. We use Bayesian Network methods to test whether NFL market movement has a direct relationship with ATS outcome after accounting for game fundamentals. The goal is not simply to build a betting model, but to study information overlap between game statistics and market signals. 
+
 \section{Approach}
 
+We construct a combined dataset using two sources. Game statistics come from nflverse, while market information comes from Sportsbook Review historical odds data. The datasets are joined by season and matchup using home and away teams. The final dataset contains 3,990 NFL games over 15 seasons, with both football performance variables and betting market variables. 
+
+The prediction target is against-the-spread outcome, represented as a three-class classification problem: cover, loss, or push. A cover means the selected side beats the spread, a loss means it fails to beat the spread, and a push means the final margin equals the spread. Pushes are rare, which creates a class-imbalance issue addressed in the evaluation section. 
+
+Our features are divided into two groups. Game-stat features include offensive efficiency, defensive efficiency, turnover margin, and rolling team performance. Market features include opening spread, closing spread, line movement, moneyline information, and totals. To prevent data leakage, rolling features are calculated only from games that occurred before the current game. The current game’s ATS result is never used as an input feature. 
+
+Because the Bayesian Network structure-learning algorithms require categorical inputs, all continuous features were discretized into three ordinal bins before being passed to the Hill Climbing and PC models. For example, the closing spread was binned by magnitude into small, medium, and large bins. Naive Bayes, by contrast, used the continuous feature values directly through Gaussian likelihoods, which is the primary reason its accuracy exceeds that of the network models. The data were partitioned into training and test sets with an 80/20 split ratio, and structure learning and inference were implemented using the pgmpy python library. 
+
+We evaluate three feature configurations. The stats-only configuration uses only game fundamentals. The market-only configuration uses only betting market variables. The combined configuration uses both groups together. This ablation design directly tests whether market signals add predictive value beyond statistics alone. 
+
+Naive Bayes serves as the baseline model. Although its independence assumption is unrealistic for football data, it provides a useful comparison point. Since many features are continuous, we use Gaussian Naive Bayes. The main Bayesian Network model uses structure learning to identify dependencies among variables. Hill Climbing is used as the primary score-based structure-learning method, while the PC algorithm is used as a constraint-based validation check. 
+
+Models are evaluated using two metrics (1) classification accuracy, which measures hard-prediction performance, and log loss, which measures probability calibration.  
+
 \begin{figure}[H]
-	\makebox[\textwidth][c]{\includegraphics[width=0.50\linewidth]{hc_dag-pre_blacklist.png}}
+	\makebox[\textwidth][c]{\includegraphics[width=0.50\linewidth]{assumed_domain_dag.png}}
 	\caption{Assumed domain DAG used to seed structure learning.}
 	\label{fig:assumed-dag}
 \end{figure}
+
+The expected domain structure is that game fundamentals influence the opening line, market activity produces line movement, and the closing line represents the final market consensus. The key question is whether line movement also connects directly to ATS outcome.  
 
 \section{Results / Evaluation}
 
@@ -62,7 +97,7 @@ Before the table can be interpreted, the majority-class baseline requires explan
 	\label{tab:ablation}
 \end{table}
 
-Table \ref{tab:per-class} reports precision, recall, and F1 for each model under the combined feature configuration. Neither Bayesian Network model predicts push in any configuration – at 3.0\% of the data, the class is too rare for the conditional probability tables to accumulate enough evidence to rank it above loss. Naive Bayes, operating on continuous Gaussian likelihoods rather than counted state combinations, is the only model to detect the class, achieving 22\% F1 on push. 
+Table 2 reports precision, recall, and F1 for each model under the combined feature configuration. Neither Bayesian Network model predicts push in any configuration – at 3.0\% of the data, the class is too rare for the conditional probability tables to accumulate enough evidence to rank it above loss. Naive Bayes, operating on continuous Gaussian likelihoods rather than counted state combinations, is the only model to detect the class, achieving 22\% F1 on push. 
 
 \begin{table}[h]
 	\centering
@@ -92,17 +127,17 @@ We ran Hill Climbing and the PC algorithm in tandem so each could check the othe
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.50\linewidth]{hc_dag.png}
-	\caption{Hill Climbing learned DAG. Green arrow indicates predictor of \texttt{ats\_result}.}
+	\caption{Hill Climbing learned DAG. Green arrow indicates predictor of ats\_result.}
 	\label{fig:hc-dag}
 \end{figure}
 
 
-The PC DAG, which gives ats\_result four direct parents – epa\_diff, home\_win\_prob, td\_diff, and close\_spread – the two strongest game-level margin predictors plus the market's expectation. The algorithms agree on epa\_diff → ats\_result but differ elsewhere. As expected, score-based and constraint-based learning identify the same Markov equivalence class but can orient edges within it differently. 
+The PC DAG, which gives ats\_result three direct parents – epa\_diff, home\_win\_prob, and td\_diff – the two strongest game-level margin predictors plus the market's expectation. The algorithms agree on epa\_diff → ats\_result but differ elsewhere. As expected, score-based and constraint-based learning identify the same Markov equivalence class but can orient edges within it differently. 
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.50\linewidth]{pc_dag.png}
-	\caption{PC Algorithm learned DAG. Green arrows indicate predictors of \texttt{ats\_result}.}
+	\caption{PC Algorithm learned DAG. Green arrows indicate predictors of ats\_result.}
 	\label{fig:pc-dag}
 \end{figure}
 
@@ -114,7 +149,11 @@ Two secondary findings follow. Adding market features to Naive Bayes lowers accu
 
 Does line movement contain predictive information about NFL ATS outcomes beyond what game statistics encode? Adding market signals never beats game statistics alone. The stats-only Naive Bayes model is our strongest classifier and uses no market features, and the market-only networks barely clear the majority baseline. The combined PC model achieves the best log loss of all nine configurations, so the closing spread and home win probability carry uncertainty information (confidence in the prediction) the statistics do not fully encode. This is partial efficiency: the market’s hard prediction is already encoded in game statistics, but its uncertainty estimate adds information beyond them. The closing spread is not merely a point estimate; it encodes calibrated uncertainty about the outcome. 
 
-Several limitations constrain our findings. First and most consequential, discretization – binning continuous features into three categories for the network models discards magnitude information and is the main reason the Bayesian Networks trail Naive Bayes, a continuous (Gaussian) Bayesian Network is the natural fix. (1) Neither network learns the push class – at 3.0\% of the data, the conditional probabilities never rank pushes above wins or losses. Oversampling or BDeu priors may help to address this issue. (2) Spread direction is a limitation we identified late through domain feedback: Binning the closing spread by magnitude discards directional information – a home team laying seven and one receiving seven fall in the same bin, which the model cannot recover. (3) The dataset straddles the 2018 PASPA repeal, pooling two structurally different markets. For example, quarterback injuries are absent for data-availability reasons and likely cap achievable accuracy; and the rolling ATS feature weights all fifteen seasons equally, which a recency-weighted version would address. 
+Several limitations constrain our findings. First and most consequential, discretization – binning continuous features into three categories for the network models discards magnitude information and is the main reason the Bayesian Networks trail Naive Bayes, a continuous (Gaussian) Bayesian Network is the natural fix. (1) Neither network learns the push class – at 3.0\% of the data, the conditional probabilities never rank pushes above wins or losses. Oversampling or BDeu priors may help to address this issue. (2) Spread direction is a limitation we identified late through domain feedback: Binning the closing spread by magnitude discards directional information – a home team laying seven and one receiving seven fall in the same bin, which the model cannot recover. (3) The dataset straddles the 2018 PASPA repeal, pooling two structurally different markets. Quarterback injuries are absent for data-availability reasons and likely cap achievable accuracy; and the rolling ATS feature weights all fifteen seasons equally, which a recency-weighted version would address. 
+
+\section{Future Work}
+
+Future work should pursue continuous Bayesian Network variations and experiments to remove the discretization penalty, restrict analysis to the post-2018 legal-betting era to control for the PASPA repeal, recover signed spread direction to preserve key numbers, and incorporate quarterback availability data as a high-signal feature absent from the current dataset.
 
 \begin{thebibliography}{9}
 
