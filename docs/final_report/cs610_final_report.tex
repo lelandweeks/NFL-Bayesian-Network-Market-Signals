@@ -5,6 +5,8 @@
 \usepackage{enumitem}
 \usepackage{graphicx}
 \usepackage{amssymb}
+\usepackage{multirow}
+\usepackage{float}
 
 
 \title{\textbf{Bayesian Network Modeling of NFL Game Stats and Market Signals for Value Identification}}
@@ -35,9 +37,84 @@
 
 \section{Approach}
 
-\section{Resultls / Evaluation}
+\begin{figure}[H]
+	\makebox[\textwidth][c]{\includegraphics[width=0.50\linewidth]{hc_dag-pre_blacklist.png}}
+	\caption{Assumed domain DAG used to seed structure learning.}
+	\label{fig:assumed-dag}
+\end{figure}
+
+\section{Results / Evaluation}
+
+Before the table can be interpreted, the majority-class baseline requires explanation. In a three-class problem where one class represents 58.0\% of games, a model that predicts loss for every game achieves 58.0\% accuracy without learning anything. Any model that fails to exceed this threshold has no predictive value. The stats-only Naïve Bayes configuration achieves the highest accuracy of any model tested (84.1\%), using no market features. 
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|l|c|c|c|c|c|c|}
+		\hline
+		\textbf{Config} & \textbf{NB Acc} & \textbf{HC Acc} & \textbf{PC Acc} & \textbf{NB Loss} & \textbf{HC Loss} & \textbf{PC Loss} \\
+		\hline
+		Stats Only   & 84.1\% & 50.4\% & 50.4\% & 0.439 & 0.375 & 0.368 \\
+		Market Only  & 56.4\% & 58.6\% & 58.6\% & 0.840 & 0.776 & 0.760 \\
+		Combined     & 81.0\% & 50.4\% & 47.3\% & 0.538 & 0.375 & 0.345 \\
+		\hline
+	\end{tabular}
+	\caption{Accuracy and log loss across all nine combinations.}
+	\label{tab:ablation}
+\end{table}
+
+Table \ref{tab:per-class} reports precision, recall, and F1 for each model under the combined feature configuration. Neither Bayesian Network model predicts push in any configuration – at 3.0\% of the data, the class is too rare for the conditional probability tables to accumulate enough evidence to rank it above loss. Naive Bayes, operating on continuous Gaussian likelihoods rather than counted state combinations, is the only model to detect the class, achieving 22\% F1 on push. 
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|l|l|c|c|c|c|}
+		\hline
+		\textbf{Model} & \textbf{Class} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} & \textbf{Support} \\
+		\hline
+		\multirow{3}{*}{Na\"{i}ve Bayes} & Cover & 0.81 & 0.80 & 0.81 & 259 \\
+		& Loss  & 0.88 & 0.85 & 0.87 & 404 \\
+		& Push  & 0.18 & 0.30 & 0.22 & 27  \\
+		\hline
+		\multirow{3}{*}{Hill Climbing} & Cover & 0.37 & 0.39 & 0.38 & 259 \\
+		& Loss  & 0.59 & 0.61 & 0.60 & 404 \\
+		& Push  & 0.00 & 0.00 & 0.00 & 27  \\
+		\hline
+		\multirow{3}{*}{PC Algorithm} & Cover & 0.35 & 0.44 & 0.39 & 259 \\
+		& Loss  & 0.58 & 0.53 & 0.55 & 404 \\
+		& Push  & 0.00 & 0.00 & 0.00 & 27  \\
+		\hline
+	\end{tabular}
+	\caption{Model-Class results under the combined feature configuration.}
+	\label{tab:per-class}
+\end{table}
+
+We ran Hill Climbing and the PC algorithm in tandem so each could check the other. Hill Climbing produced the edge ats\_result → epa\_diff as a game outcome causing the statistics that describe it, which is causally impossible. We corrected the direction using domain knowledge, and the PC algorithm independently recovered epa\_diff → ats\_result with no intervention, validating the correction. The pipeline catching and fixing a causally impossible edge is the methodology working as intended. 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.50\linewidth]{hc_dag.png}
+	\caption{Hill Climbing learned DAG. Green arrow indicates predictor of \texttt{ats\_result}.}
+	\label{fig:hc-dag}
+\end{figure}
+
+
+The PC DAG, which gives ats\_result four direct parents – epa\_diff, home\_win\_prob, td\_diff, and close\_spread – the two strongest game-level margin predictors plus the market's expectation. The algorithms agree on epa\_diff → ats\_result but differ elsewhere. As expected, score-based and constraint-based learning identify the same Markov equivalence class but can orient edges within it differently. 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.50\linewidth]{pc_dag.png}
+	\caption{PC Algorithm learned DAG. Green arrows indicate predictors of \texttt{ats\_result}.}
+	\label{fig:pc-dag}
+\end{figure}
+
+Two framing points precede the findings. The game statistics are post-game measurements that correlate with ATS outcomes by construction, so the stats-only accuracy reflects information content rather than pre-game predictive power; the stats-versus-market comparison is therefore a study of information overlap, not a forecast. The central result is a divergence between accuracy and log loss: the combined PC model has the worst accuracy of all nine runs (47.3\%, below baseline), yet the best log loss (0.345). Market signals improve the probability mass assigned across all three classes without changing which class is predicted – they improve how certain the model is, not what it predicts. This is the answer to the research question. 
+
+Two secondary findings follow. Adding market features to Naive Bayes lowers accuracy (84.1\% stats-only to 81.0\% combined) because the closing line is built partly from the same performance signals as EPA and turnover differential, and correlated features violate the model’s independence assumption. Naive Bayes also outperforms both Bayesian Networks on accuracy in every configuration because it uses continuous values, whereas the networks require binning that discards magnitude, a limitation of discretization rather than of the Bayesian Network formalism. 
 
 \section{Conclusions}
+
+Does line movement contain predictive information about NFL ATS outcomes beyond what game statistics encode? Adding market signals never beats game statistics alone. The stats-only Naive Bayes model is our strongest classifier and uses no market features, and the market-only networks barely clear the majority baseline. The combined PC model achieves the best log loss of all nine configurations, so the closing spread and home win probability carry uncertainty information (confidence in the prediction) the statistics do not fully encode. This is partial efficiency: the market’s hard prediction is already encoded in game statistics, but its uncertainty estimate adds information beyond them. The closing spread is not merely a point estimate; it encodes calibrated uncertainty about the outcome. 
+
+Several limitations constrain our findings. First and most consequential, discretization – binning continuous features into three categories for the network models discards magnitude information and is the main reason the Bayesian Networks trail Naive Bayes, a continuous (Gaussian) Bayesian Network is the natural fix. (1) Neither network learns the push class – at 3.0\% of the data, the conditional probabilities never rank pushes above wins or losses. Oversampling or BDeu priors may help to address this issue. (2) Spread direction is a limitation we identified late through domain feedback: Binning the closing spread by magnitude discards directional information – a home team laying seven and one receiving seven fall in the same bin, which the model cannot recover. (3) The dataset straddles the 2018 PASPA repeal, pooling two structurally different markets. For example, quarterback injuries are absent for data-availability reasons and likely cap achievable accuracy; and the rolling ATS feature weights all fifteen seasons equally, which a recency-weighted version would address. 
 
 \begin{thebibliography}{9}
 
