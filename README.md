@@ -1,6 +1,7 @@
 # NFL Bayesian Network: Game Stats & Market Signals
 
-**CS610 Final Project — Drexel MSAIML**
+**CS610 Final Project**
+
 **Leland Weeks · Johnny Belichev · Ishant Somal**
 
 ---
@@ -36,18 +37,18 @@ Results are written to `output/ablation_summary.csv`.
 
 ## Research Question
 
-Does line movement (market signals) contain predictive information about NFL game outcomes beyond what game statistics already encode? Framed as a three-class classification problem (cover / loss / push) against the closing spread, using 3,448 NFL games across 15 seasons (2007–2022).
+Does line movement (market signals) contain predictive information about NFL game outcomes beyond what game statistics already encode? Framed as a three-class classification problem (cover / loss / push) against the closing spread, using 3,990 NFL games across 15 seasons (2007–2022).
 
 ---
 
 ## Key Results
 
-| Config | NB Accuracy | HC Accuracy | PC Accuracy | NB Log Loss | PC Log Loss |
-|--------|-------------|-------------|-------------|-------------|-------------|
-| Majority baseline | 58.0% | — | — | — | — |
-| Stats only | **84.1%** | 50.4% | 50.4% | **0.439** | 0.368 |
-| Market only | 56.4% | 58.6% | 58.6% | 0.840 | 0.760 |
-| Combined | 81.0% | 50.4% | 47.3% | 0.538 | **0.345** |
+| Config | NB Accuracy | HC Accuracy | PC Accuracy | NB Log Loss | HC Log Loss | PC Log Loss |
+|--------|-------------|-------------|-------------|-------------|-------------|-------------|
+| Majority baseline | 58.0% | — | — | — | — | — |
+| Stats only | **84.1%** | 50.4% | 50.4% | **0.439** | 0.375 | 0.368 |
+| Market only | 56.4% | 58.6% | 58.6% | 0.840 | 0.776 | 0.760 |
+| Combined | 81.0% | 50.4% | 47.3% | 0.538 | 0.375 | **0.345** |
 
 Market signals do not improve NB classification accuracy. Combined PC achieves the best probability calibration (log loss).
 
@@ -86,6 +87,6 @@ The following files were produced with AI assistance and reviewed by the project
 
 | File | Reason |
 |------|--------|
-| `scripts/fetch_nflverse.py` | Data acquisition scripting |
-| `scripts/fetch_sbr.py` | Data acquisition scripting |
+| `scripts/fetch_nfl_game_stats.py` | Data acquisition scripting |
+| `scripts/scrape_sbr_nfl_odds.py` | Data acquisition scripting |
 | `README.md` | Documentation |
