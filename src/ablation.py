@@ -6,9 +6,6 @@ Authors: Leland Weeks, Johnny Belichev, & Ishant Somal
 Date: June 2026
 """
 
-import csv
-from importlib.resources import path
-
 from models.naive_bayes import run_nb
 from models.hill_climbing import run_hc
 from models.pc_algorithm import run_pc

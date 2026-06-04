@@ -35,8 +35,7 @@ def run_hc(df):
     # discrete model for categorical features
     model = DiscreteBayesianNetwork(edges)
 
-    # BayesianEstimator handles sparse data by adding pseudocounts
-    # for states not seen in training, preventing zero-probability crashes
+    # smooth with BDeu so category combos not seen don't get zero probability
     model.fit(train, estimator=BayesianEstimator, prior_type="BDeu", equivalent_sample_size=5)
 
     y_test = test[TARGET]

@@ -22,17 +22,16 @@ def run_pc(df):
     pc = PC(train)
 
     skeleton = pc.estimate(
-        variant="stable",        # reproducible regardless of variable ordering
-        ci_test="chi_square",    # correct for discrete/categorical data
-        significance_level=0.05, # removes more edges than default 0.01, producing a sparser graph
-        return_type="dag"        # required by DiscreteBayesianNetwork
+        variant="stable",
+        ci_test="chi_square",
+        significance_level=0.05, # changed from default to produce a sparser graph
+        return_type="dag"
     )
 
     # discrete model for categorical features
     model = DiscreteBayesianNetwork(skeleton.edges())
 
-    # BayesianEstimator handles sparse data by adding pseudocounts
-    # for states not seen in training, preventing zero-probability crashes
+    # smooth with BDeu so category combos not seen don't get zero probability
     model.fit(train, estimator=BayesianEstimator, prior_type="BDeu", equivalent_sample_size=5)
 
     y_test = test[TARGET]
@@ -42,7 +41,7 @@ def run_pc(df):
     X_test = X_test[[col for col in X_test.columns if col in model_nodes]]
 
     # drop test rows from categories not seen during training
-    # this happens for rare categories (e.g. visitor_fav with 1 row) that can land entirely in test and cause inference to crash
+    # this happens for rare categories (e.g. visitor_fav with 1 row) that can land entirely in test
     for col in X_test.columns:
         train_cols = set(train[col].unique())
         X_test = X_test[X_test[col].isin(train_cols)]
